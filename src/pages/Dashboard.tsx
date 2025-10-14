@@ -1,166 +1,189 @@
+import { Navigation } from "@/components/Navigation";
+import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { Play, History, TrendingUp, CreditCard, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { 
-  Sparkles, 
-  Clock, 
-  TrendingUp, 
-  Plus,
-  Calendar,
-  Award,
-  Users
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Dashboard = () => {
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [customRole, setCustomRole] = useState("");
+  const [hasCompletedInterview, setHasCompletedInterview] = useState(false);
+  
+  useEffect(() => {
+    // Show profile popup for first-time users
+    const hasVisited = localStorage.getItem("hasVisitedDashboard");
+    if (!hasVisited) {
+      setShowProfilePopup(true);
+      localStorage.setItem("hasVisitedDashboard", "true");
+    }
+    
+    // Check if user has completed interviews
+    const completedInterviews = localStorage.getItem("completedInterviews");
+    setHasCompletedInterview(!!completedInterviews);
+  }, []);
+  
+  const stats = [
+    { label: "Interviews Left", value: "2", icon: Play },
+    { 
+      label: "Total Completed", 
+      value: hasCompletedInterview ? "1" : "No interviews yet.", 
+      icon: History 
+    },
+    { 
+      label: "Average Score", 
+      value: hasCompletedInterview ? "8.5/10" : "No interviews yet.", 
+      icon: TrendingUp 
+    },
+    { label: "Membership", value: "Buy Now", icon: CreditCard },
+  ];
+  
+  const recentInterviews = hasCompletedInterview ? [
+    { date: "2025-01-08", role: "Software Engineer", company: "Google", score: 9.2 },
+  ] : [];
+  
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="glass sticky top-0 z-50 border-b border-border/50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold gradient-text">
-            InterviewAI
-          </Link>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              <Award className="w-4 h-4 mr-2" />
-              5 Credits
+    <div className="min-h-screen pb-20">
+      <Navigation showProfile={true} />
+      
+      {/* Profile Update Popup */}
+      <Dialog open={showProfilePopup} onOpenChange={setShowProfilePopup}>
+        <DialogContent className="glass-card border-border/50">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Welcome to InterviewAI! 🎉</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Let's set up your profile to get personalized interview experiences tailored just for you.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowProfilePopup(false)} className="glass-button">
+              Skip for Now
             </Button>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center font-semibold">
-              JD
-            </div>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold mb-2">
-            Welcome back, <span className="gradient-text">John</span>
+            <Link to="/profile">
+              <Button className="bg-primary hover:bg-primary/90">
+                Update Profile
+              </Button>
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <div className="container mx-auto px-4 md:px-6 pt-24 md:pt-32">
+        <div className="mb-8 md:mb-12 animate-fade-in">
+          <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">
+            Welcome back, <span className="text-primary">John</span>
           </h1>
-          <p className="text-muted-foreground">Ready to practice your next interview?</p>
+          <p className="text-base md:text-xl text-muted-foreground">
+            Ready to practice your next interview?
+          </p>
         </div>
-
-        {/* Quick Stats */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
-          {[
-            { icon: Sparkles, label: "Credits Left", value: "5", color: "from-primary to-accent" },
-            { icon: Clock, label: "Total Practice", value: "12h", color: "from-accent to-primary" },
-            { icon: TrendingUp, label: "Avg Score", value: "8.5", color: "from-primary to-accent" },
-            { icon: Users, label: "Interviews", value: "23", color: "from-accent to-primary" }
-          ].map((stat, index) => (
-            <div key={index} className="glass rounded-2xl p-6 animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
-              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}>
-                <stat.icon className="w-5 h-5 text-primary-foreground" />
+        
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 md:mb-12">
+          {stats.map((stat, index) => (
+            <GlassCard 
+              key={index}
+              className="animate-scale-in hover:shadow-lg transition-shadow"
+              style={{ animationDelay: `${index * 0.1}s` } as React.CSSProperties}
+            >
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3 md:mb-4">
+                <stat.icon className="h-5 w-5 md:h-6 md:w-6" style={{ color: 'hsl(var(--primary))' }} />
               </div>
-              <div className="text-sm text-muted-foreground mb-1">{stat.label}</div>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </div>
+              <div className="text-base md:text-xl font-bold mb-1">{stat.value}</div>
+              <div className="text-xs text-muted-foreground">{stat.label}</div>
+            </GlassCard>
           ))}
         </div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Start Interview Card */}
-            <div className="glass-glow rounded-2xl p-8 animate-fade-in">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2">Start New Interview</h2>
-                  <p className="text-muted-foreground">Practice with AI-powered feedback</p>
-                </div>
-                <Link to="/interview">
-                  <Button variant="hero" size="lg">
-                    <Plus className="w-5 h-5 mr-2" />
-                    Start
-                  </Button>
-                </Link>
-              </div>
+        
+        <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+          {/* Start Interview */}
+          <div className="lg:col-span-2">
+            <GlassCard className="animate-fade-in-up">
+              <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Start New Interview</h2>
               
-              <div className="grid md:grid-cols-3 gap-4">
-                {[
-                  { label: "Job Role", placeholder: "Software Engineer" },
-                  { label: "Company", placeholder: "Google" },
-                  { label: "Duration", placeholder: "30 minutes" }
-                ].map((field, index) => (
-                  <div key={index} className="glass rounded-xl p-4">
-                    <div className="text-sm text-muted-foreground mb-2">{field.label}</div>
-                    <div className="font-medium">{field.placeholder}</div>
+              <div className="space-y-4 md:space-y-6">
+                <div className="p-4 md:p-6 rounded-xl bg-primary/5 border border-primary/20">
+                  <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-4">Quick Start</h3>
+                  <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">
+                    Jump into a personalized mock interview tailored to your profile
+                  </p>
+                  <Link to="/interview">
+                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/30 transition-all">
+                      <Play className="mr-2 h-4 w-4 md:h-5 md:w-5" style={{ color: 'hsl(var(--primary-foreground))' }} />
+                      Start Interview Now
+                    </Button>
+                  </Link>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div className="p-3 md:p-4 rounded-xl glass-card glass-hover cursor-pointer">
+                    <h4 className="text-sm md:text-base font-semibold mb-1 md:mb-2">Software Engineering</h4>
+                    <p className="text-xs md:text-sm text-muted-foreground">Technical & behavioral questions</p>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Recent Interviews */}
-            <div className="glass rounded-2xl p-6 animate-fade-in" style={{ animationDelay: "200ms" }}>
-              <h3 className="text-xl font-semibold mb-4">Recent Interviews</h3>
-              <div className="space-y-3">
-                {[
-                  { role: "Senior Frontend Developer", company: "Meta", date: "2 days ago", score: 8.5 },
-                  { role: "Product Manager", company: "Google", date: "5 days ago", score: 7.8 },
-                  { role: "Software Engineer", company: "Amazon", date: "1 week ago", score: 9.2 }
-                ].map((interview, index) => (
-                  <div key={index} className="glass rounded-xl p-4 hover:glass-glow transition-all duration-300 cursor-pointer">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                          <Calendar className="w-6 h-6 text-primary-foreground" />
-                        </div>
-                        <div>
-                          <div className="font-medium">{interview.role}</div>
-                          <div className="text-sm text-muted-foreground">{interview.company} · {interview.date}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold gradient-text">{interview.score}</div>
-                        <div className="text-xs text-muted-foreground">Score</div>
-                      </div>
-                    </div>
+                  <div className="p-3 md:p-4 rounded-xl glass-card glass-hover cursor-pointer">
+                    <h4 className="text-sm md:text-base font-semibold mb-1 md:mb-2">Product Management</h4>
+                    <p className="text-xs md:text-sm text-muted-foreground">Strategy & leadership focus</p>
                   </div>
-                ))}
+                  <div className="p-3 md:p-4 rounded-xl glass-card glass-hover cursor-pointer">
+                    <h4 className="text-sm md:text-base font-semibold mb-1 md:mb-2">Data Science</h4>
+                    <p className="text-xs md:text-sm text-muted-foreground">Analytics & ML questions</p>
+                  </div>
+                  <div className="p-3 md:p-4 rounded-xl glass-card glass-hover">
+                    <h4 className="text-sm md:text-base font-semibold mb-2">Custom Role</h4>
+                    <Input 
+                      placeholder="Enter your role..." 
+                      value={customRole}
+                      onChange={(e) => setCustomRole(e.target.value)}
+                      className="glass-button text-xs md:text-sm h-8"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
+            </GlassCard>
           </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Progress Card */}
-            <div className="glass rounded-2xl p-6 animate-fade-in" style={{ animationDelay: "300ms" }}>
-              <h3 className="text-lg font-semibold mb-4">Your Progress</h3>
-              <div className="space-y-4">
-                {[
-                  { skill: "Communication", progress: 85 },
-                  { skill: "Technical", progress: 75 },
-                  { skill: "Problem Solving", progress: 90 }
-                ].map((item, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-muted-foreground">{item.skill}</span>
-                      <span className="font-medium">{item.progress}%</span>
-                    </div>
-                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-1000"
-                        style={{ width: `${item.progress}%` }}
-                      />
-                    </div>
+          
+          {/* Recent Interviews */}
+          <div className="space-y-4 md:space-y-6">
+            <GlassCard className="animate-fade-in-up" style={{ animationDelay: "0.1s" } as React.CSSProperties}>
+              <h2 className="text-lg md:text-xl font-bold mb-3 md:mb-4">Recent Interviews</h2>
+              
+              {recentInterviews.length > 0 ? (
+                <div className="space-y-2 md:space-y-3">
+                  {recentInterviews.map((interview, index) => (
+                    <Link key={index} to="/feedback">
+                      <div className="p-3 rounded-lg glass-card glass-hover cursor-pointer">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="text-sm font-semibold">{interview.role}</div>
+                            <div className="text-xs text-muted-foreground">{interview.company}</div>
+                          </div>
+                          <div className="text-base md:text-lg font-bold text-primary">{interview.score}</div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">{interview.date}</div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <History className="h-8 w-8" style={{ color: 'hsl(var(--primary))' }} />
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Referral Card */}
-            <div className="glass-glow rounded-2xl p-6 animate-fade-in" style={{ animationDelay: "400ms" }}>
-              <h3 className="text-lg font-semibold mb-2">Refer & Earn</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Get 3 bonus credits for each friend who joins
-              </p>
-              <Button variant="hero" className="w-full">
-                <Users className="w-4 h-4 mr-2" />
-                Invite Friends
-              </Button>
-            </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    No interviews yet. Start your first interview to see your progress!
+                  </p>
+                  <Link to="/interview">
+                    <Button size="sm" className="bg-primary hover:bg-primary/90">
+                      <Play className="mr-2 h-4 w-4" style={{ color: 'hsl(var(--primary-foreground))' }} />
+                      Start First Interview
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </GlassCard>
           </div>
         </div>
       </div>

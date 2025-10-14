@@ -1,304 +1,157 @@
-import { useState } from "react";
+import { Navigation } from "@/components/Navigation";
+import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import {
-  TrendingUp,
-  MessageSquare,
-  Target,
-  Star,
-  Volume2,
-  Download,
-  ChevronRight,
-  Trophy,
-  ArrowLeft,
-} from "lucide-react";
+import { Download, Play, Home } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  ResponsiveContainer,
-} from "recharts";
 
 const Feedback = () => {
-  const [isPlayingFeedback, setIsPlayingFeedback] = useState(false);
-
-  const scoreData = [
-    { category: "Communication", score: 85, fullMark: 100 },
-    { category: "Domain", score: 78, fullMark: 100 },
-    { category: "Structure", score: 90, fullMark: 100 },
-    { category: "STAR", score: 75, fullMark: 100 },
-    { category: "Confidence", score: 88, fullMark: 100 },
-  ];
-
-  const overallScore = Math.round(
-    scoreData.reduce((acc, curr) => acc + curr.score, 0) / scoreData.length
-  );
-
-  const questions = [
-    {
-      question: "Tell me about yourself and your experience.",
-      yourAnswer:
-        "I have 5 years of experience in software development, primarily working with React and Node.js...",
-      modelAnswer:
-        "I'm a software engineer with 5 years of experience specializing in full-stack development. At my current role at TechCorp, I led the development of a customer analytics platform that improved user engagement by 40%. I'm particularly passionate about creating scalable web applications and mentoring junior developers.",
-      feedback:
-        "Good start! Consider using the STAR framework to structure your response with a specific achievement.",
-    },
-    {
-      question: "What interests you about this role?",
-      yourAnswer:
-        "I'm interested in the technical challenges and the opportunity to work with modern technologies...",
-      modelAnswer:
-        "I'm excited about this role for three key reasons. First, your company's focus on AI-driven solutions aligns with my passion for innovative technology. Second, the opportunity to work on large-scale systems matches my experience and growth aspirations. Finally, your commitment to engineering excellence resonates with my values.",
-      feedback:
-        "Try to be more specific about what excites you. Research the company's products and culture to give tailored examples.",
-    },
-  ];
-
-  const playVoiceFeedback = () => {
-    setIsPlayingFeedback(true);
-    // Simulate voice feedback
-    setTimeout(() => {
-      setIsPlayingFeedback(false);
-    }, 5000);
+  const scores = {
+    communication: 8.5,
+    domainKnowledge: 9.0,
+    starFramework: 8.0,
+    confidence: 8.8,
+    problemSolving: 8.3,
   };
-
-  const downloadReport = () => {
-    // Simulate PDF download
-    console.log("Downloading report...");
-  };
-
+  
+  const maxScore = 10;
+  const avgScore = Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length;
+  
   return (
-    <div className="min-h-screen">
-      <header className="glass sticky top-0 z-50 border-b border-border/50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold gradient-text">
-            InterviewAI
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
-                Back to Dashboard
-              </Button>
-            </Link>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Overall Score */}
-        <div className="mb-8 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <Trophy className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl font-bold">
-              Interview <span className="gradient-text">Complete!</span>
+    <div className="min-h-screen pb-20">
+      <Navigation />
+      
+      <div className="container mx-auto px-4 md:px-6 pt-24 md:pt-32">
+        <div className="max-w-5xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8 md:mb-12 animate-fade-in">
+            <div className="inline-block mb-4">
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary flex items-center justify-center text-3xl md:text-4xl font-bold text-white animate-scale-in shadow-lg shadow-primary/30">
+                {avgScore.toFixed(1)}
+              </div>
+            </div>
+            <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">
+              Great Job, <span className="text-primary">John!</span>
             </h1>
-          </div>
-          <p className="text-muted-foreground mb-6">
-            Here's your detailed performance analysis
-          </p>
-
-          <div className="glass-glow rounded-3xl p-8 max-w-sm mx-auto">
-            <div className="text-6xl font-bold gradient-text mb-2">{overallScore}</div>
-            <div className="text-sm text-muted-foreground">Overall Score</div>
-          </div>
-        </div>
-
-        {/* Voice Feedback */}
-        <div className="mb-8 animate-fade-in" style={{ animationDelay: "100ms" }}>
-          <div className="glass-glow rounded-3xl p-8 text-center max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4">AI Voice Feedback</h2>
-            <p className="text-muted-foreground mb-6">
-              Listen to personalized feedback about your interview performance
+            <p className="text-base md:text-xl text-muted-foreground">
+              Here's your detailed performance analysis
             </p>
-            <Button
-              onClick={playVoiceFeedback}
-              size="lg"
-              variant="hero"
-              disabled={isPlayingFeedback}
-              className="min-w-[200px]"
-            >
-              {isPlayingFeedback ? (
-                <>
-                  <div className="animate-pulse mr-2">Playing...</div>
-                  <Volume2 className="w-5 h-5 animate-pulse" />
-                </>
-              ) : (
-                <>
-                  <Volume2 className="w-5 h-5 mr-2" />
-                  Play Feedback
-                </>
-              )}
-            </Button>
           </div>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Score Breakdown */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Radar Chart */}
-            <div className="glass rounded-3xl p-8 animate-fade-in" style={{ animationDelay: "200ms" }}>
-              <h2 className="text-2xl font-bold mb-6">
-                Multi-Dimensional <span className="gradient-text">Analysis</span>
-              </h2>
-              <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart data={scoreData}>
-                    <PolarGrid stroke="hsl(var(--border))" />
-                    <PolarAngleAxis
-                      dataKey="category"
-                      tick={{ fill: "hsl(var(--foreground))", fontSize: 12 }}
-                    />
-                    <PolarRadiusAxis
-                      angle={90}
-                      domain={[0, 100]}
-                      tick={{ fill: "hsl(var(--muted-foreground))" }}
-                    />
-                    <Radar
-                      name="Score"
-                      dataKey="score"
-                      stroke="hsl(var(--primary))"
-                      fill="hsl(var(--primary))"
-                      fillOpacity={0.3}
-                      strokeWidth={2}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Individual Scores */}
-            <div className="glass rounded-3xl p-8 animate-fade-in" style={{ animationDelay: "300ms" }}>
-              <h2 className="text-2xl font-bold mb-6">Score Breakdown</h2>
-              <div className="space-y-4">
-                {scoreData.map((item, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">{item.category}</span>
-                      <span className="text-sm font-bold gradient-text">
-                        {item.score}/100
-                      </span>
-                    </div>
-                    <div className="h-3 bg-secondary rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-1000"
-                        style={{ width: `${item.score}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Question-by-Question Feedback */}
-            <div className="glass rounded-3xl p-8 animate-fade-in" style={{ animationDelay: "400ms" }}>
-              <h2 className="text-2xl font-bold mb-6">
-                Question-by-Question <span className="gradient-text">Analysis</span>
-              </h2>
-              <div className="space-y-6">
-                {questions.map((item, index) => (
-                  <div key={index} className="glass rounded-2xl p-6">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-bold text-primary-foreground">
-                          Q{index + 1}
+          
+          <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Radar Chart Section */}
+            <div className="lg:col-span-2 space-y-4 md:space-y-6">
+              <GlassCard className="animate-fade-in-up">
+                <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Performance Breakdown</h2>
+                
+                <div className="space-y-4 md:space-y-6">
+                  {Object.entries(scores).map(([category, score], index) => (
+                    <div key={category} className="space-y-2" style={{ animationDelay: `${index * 0.1}s` }}>
+                      <div className="flex justify-between text-xs md:text-sm">
+                        <span className="font-medium capitalize">
+                          {category.replace(/([A-Z])/g, ' $1').trim()}
                         </span>
+                        <span className="font-bold text-primary">{score}/{maxScore}</span>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-2">{item.question}</h3>
+                      <div className="h-2.5 md:h-3 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full transition-all duration-1000 ease-out"
+                          style={{ width: `${(score / maxScore) * 100}%` }}
+                        />
                       </div>
                     </div>
-
-                    {/* Your Answer */}
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm font-medium text-muted-foreground">
-                          Your Answer
-                        </span>
-                      </div>
-                      <p className="text-sm text-foreground/80 pl-6">
-                        {item.yourAnswer}
-                      </p>
-                    </div>
-
-                    {/* Feedback */}
-                    <div className="mb-4 bg-secondary/50 rounded-xl p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-medium">AI Feedback</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground pl-6">
-                        {item.feedback}
-                      </p>
-                    </div>
-
-                    {/* Model Answer */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-accent" />
-                        <span className="text-sm font-medium text-accent">
-                          Model Answer
-                        </span>
-                      </div>
-                      <p className="text-sm text-foreground/80 pl-6">
-                        {item.modelAnswer}
-                      </p>
-                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+              
+              <GlassCard className="animate-fade-in-up" style={{ animationDelay: "0.2s" } as React.CSSProperties}>
+                <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Detailed Feedback</h2>
+                
+                <div className="space-y-4 md:space-y-6">
+                  <div>
+                    <h3 className="text-sm md:text-base font-semibold text-primary mb-2">✨ Strengths</h3>
+                    <ul className="space-y-1.5 md:space-y-2 text-muted-foreground text-xs md:text-sm">
+                      <li className="flex gap-2">
+                        <span>•</span>
+                        <span>Excellent use of specific examples and quantifiable results</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span>•</span>
+                        <span>Strong confidence and clear articulation of thoughts</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span>•</span>
+                        <span>Good technical depth in explaining complex concepts</span>
+                      </li>
+                    </ul>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Stats */}
-            <div className="glass rounded-3xl p-6 animate-fade-in" style={{ animationDelay: "500ms" }}>
-              <h3 className="text-lg font-semibold mb-4">Key Highlights</h3>
-              <div className="space-y-4">
-                {[
-                  { label: "Strongest", value: "Problem Structure", icon: Trophy },
-                  { label: "Improve", value: "STAR Framework", icon: TrendingUp },
-                  { label: "Duration", value: "12 minutes", icon: Target },
-                ].map((stat, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                      <stat.icon className="w-5 h-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground">{stat.label}</div>
-                      <div className="text-sm font-semibold">{stat.value}</div>
-                    </div>
+                  
+                  <div>
+                    <h3 className="text-sm md:text-base font-semibold text-secondary mb-2">💡 Areas for Improvement</h3>
+                    <ul className="space-y-1.5 md:space-y-2 text-muted-foreground text-xs md:text-sm">
+                      <li className="flex gap-2">
+                        <span>•</span>
+                        <span>Consider structuring responses more explicitly using STAR framework</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span>•</span>
+                        <span>Add more context about team dynamics and collaboration</span>
+                      </li>
+                    </ul>
                   </div>
-                ))}
-              </div>
+                </div>
+              </GlassCard>
             </div>
-
-            {/* Actions */}
-            <div className="glass-glow rounded-3xl p-6 animate-fade-in" style={{ animationDelay: "600ms" }}>
-              <h3 className="text-lg font-semibold mb-4">Next Steps</h3>
-              <div className="space-y-3">
-                <Button onClick={downloadReport} variant="hero" className="w-full">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Report
+            
+            {/* Sidebar */}
+            <div className="space-y-4 md:space-y-6">
+              <GlassCard className="animate-fade-in-up" style={{ animationDelay: "0.3s" } as React.CSSProperties}>
+                <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4">Actions</h3>
+                
+                <div className="space-y-2 md:space-y-3">
+                  <Button className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 transition-all">
+                    <Download className="mr-2 h-4 w-4" />
+                    Download Report
+                  </Button>
+                  
+                  <Button variant="outline" className="w-full glass-card">
+                    <Play className="mr-2 h-4 w-4" />
+                    Play Recording
+                  </Button>
+                  
+                  <Link to="/dashboard" className="block">
+                    <Button variant="outline" className="w-full glass-card">
+                      <Home className="mr-2 h-4 w-4" />
+                      Back to Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              </GlassCard>
+              
+              <GlassCard className="animate-fade-in-up" style={{ animationDelay: "0.4s" } as React.CSSProperties}>
+                <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4">Model Answer</h3>
+                
+                <div className="p-3 md:p-4 rounded-lg bg-muted/30 border border-border/50">
+                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+                    "In my previous role at TechCorp, we faced a critical deadline when our main server crashed 48 hours before launch..."
+                  </p>
+                </div>
+                
+                <Button variant="link" className="text-primary p-0 mt-2 text-xs md:text-sm">
+                  Read full model answer →
                 </Button>
+              </GlassCard>
+              
+              <GlassCard className="p-4 md:p-6 bg-primary/5 border-primary/20 animate-fade-in-up" style={{ animationDelay: "0.5s" } as React.CSSProperties}>
+                <h3 className="text-sm md:text-base font-bold mb-2">Keep Practicing! 🎯</h3>
+                <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">
+                  You have 2 interviews left this month
+                </p>
                 <Link to="/interview">
-                  <Button variant="glass" className="w-full">
-                    Practice Again
-                    <ChevronRight className="w-4 h-4 ml-2" />
+                  <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
+                    Start Another Interview
                   </Button>
                 </Link>
-                <Link to="/dashboard">
-                  <Button variant="glass" className="w-full">
-                    Back to Dashboard
-                  </Button>
-                </Link>
-              </div>
+              </GlassCard>
             </div>
           </div>
         </div>
