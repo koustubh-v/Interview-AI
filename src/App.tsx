@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
+import { AuthProvider } from "@/hooks/use-auth";
+
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -20,18 +22,21 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/interview" element={<Interview />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/profile" element={<Profile />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+        {/* --- FIX IS HERE --- */}
+        <BrowserRouter> {/* 1. BrowserRouter must be on the OUTSIDE */}
+          <AuthProvider> {/* 2. AuthProvider must be on the INSIDE */}
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/interview/:sessionId" element={<Interview />} />
+              <Route path="/feedback/:sessionId" element={<Feedback />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
+        {/* --- END FIX --- */}
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>

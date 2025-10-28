@@ -1,20 +1,63 @@
+// src/pages/Feedback.tsx
 import { Navigation } from "@/components/Navigation";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
-import { Download, Play, Home } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Download, Play, Home, Loader2 } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useState } from "react";
+import { FeedbackResponse, interviewAPI } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 const Feedback = () => {
-  const scores = {
-    communication: 8.5,
-    domainKnowledge: 9.0,
-    starFramework: 8.0,
-    confidence: 8.8,
-    problemSolving: 8.3,
-  };
+  const [feedback, setFeedback] = useState<FeedbackResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!sessionId) {
+      toast({ title: "Error", description: "No interview session specified.", variant: "destructive" });
+      return;
+    }
+    
+    const fetchFeedback = async () => {
+      setIsLoading(true);
+      try {
+        const data = await interviewAPI.getFeedback(sessionId);
+        setFeedback(data);
+      } catch (error) {
+        console.error("Failed to get feedback:", error);
+        toast({ title: "Error", description: "Could not load feedback.", variant: "destructive" });
+      }
+      setIsLoading(false);
+    };
+
+    fetchFeedback();
+  }, [sessionId, toast]);
   
-  const maxScore = 10;
-  const avgScore = Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="text-muted-foreground mt-4">Generating your feedback report...</p>
+      </div>
+    );
+  }
+
+  if (!feedback) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold">Error</h1>
+        <p className="text-muted-foreground mt-2">Could not load feedback for this session.</p>
+        <Link to="/dashboard" className="mt-4">
+          <Button>Back to Dashboard</Button>
+        </Link>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen pb-20">
@@ -26,11 +69,11 @@ const Feedback = () => {
           <div className="text-center mb-8 md:mb-12 animate-fade-in">
             <div className="inline-block mb-4">
               <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary flex items-center justify-center text-3xl md:text-4xl font-bold text-white animate-scale-in shadow-lg shadow-primary/30">
-                {avgScore.toFixed(1)}
+                {feedback.overall_score.toFixed(1)}
               </div>
             </div>
             <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">
-              Great Job, <span className="text-primary">John!</span>
+              Great Job, <span className="text-primary">{user?.name || 'User'}!</span>
             </h1>
             <p className="text-base md:text-xl text-muted-foreground">
               Here's your detailed performance analysis
@@ -38,67 +81,15 @@ const Feedback = () => {
           </div>
           
           <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
-            {/* Radar Chart Section */}
+            {/* Detailed Feedback Section */}
             <div className="lg:col-span-2 space-y-4 md:space-y-6">
-              <GlassCard className="animate-fade-in-up">
-                <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Performance Breakdown</h2>
-                
-                <div className="space-y-4 md:space-y-6">
-                  {Object.entries(scores).map(([category, score], index) => (
-                    <div key={category} className="space-y-2" style={{ animationDelay: `${index * 0.1}s` }}>
-                      <div className="flex justify-between text-xs md:text-sm">
-                        <span className="font-medium capitalize">
-                          {category.replace(/([A-Z])/g, ' $1').trim()}
-                        </span>
-                        <span className="font-bold text-primary">{score}/{maxScore}</span>
-                      </div>
-                      <div className="h-2.5 md:h-3 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full transition-all duration-1000 ease-out"
-                          style={{ width: `${(score / maxScore) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </GlassCard>
-              
               <GlassCard className="animate-fade-in-up" style={{ animationDelay: "0.2s" } as React.CSSProperties}>
                 <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Detailed Feedback</h2>
                 
-                <div className="space-y-4 md:space-y-6">
-                  <div>
-                    <h3 className="text-sm md:text-base font-semibold text-primary mb-2">✨ Strengths</h3>
-                    <ul className="space-y-1.5 md:space-y-2 text-muted-foreground text-xs md:text-sm">
-                      <li className="flex gap-2">
-                        <span>•</span>
-                        <span>Excellent use of specific examples and quantifiable results</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span>•</span>
-                        <span>Strong confidence and clear articulation of thoughts</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span>•</span>
-                        <span>Good technical depth in explaining complex concepts</span>
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm md:text-base font-semibold text-secondary mb-2">💡 Areas for Improvement</h3>
-                    <ul className="space-y-1.5 md:space-y-2 text-muted-foreground text-xs md:text-sm">
-                      <li className="flex gap-2">
-                        <span>•</span>
-                        <span>Consider structuring responses more explicitly using STAR framework</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span>•</span>
-                        <span>Add more context about team dynamics and collaboration</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+                {/* Render the markdown feedback. Using <pre> to preserve whitespace */}
+                <pre className="text-sm md:text-base text-muted-foreground whitespace-pre-wrap font-sans">
+                  {feedback.detailed_feedback}
+                </pre>
               </GlassCard>
             </div>
             
@@ -108,14 +99,14 @@ const Feedback = () => {
                 <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4">Actions</h3>
                 
                 <div className="space-y-2 md:space-y-3">
-                  <Button className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 transition-all">
+                  <Button className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 transition-all" disabled>
                     <Download className="mr-2 h-4 w-4" />
-                    Download Report
+                    Download Report (Soon)
                   </Button>
                   
-                  <Button variant="outline" className="w-full glass-card">
+                  <Button variant="outline" className="w-full glass-card" disabled>
                     <Play className="mr-2 h-4 w-4" />
-                    Play Recording
+                    Play Recording (Soon)
                   </Button>
                   
                   <Link to="/dashboard" className="block">
@@ -127,26 +118,12 @@ const Feedback = () => {
                 </div>
               </GlassCard>
               
-              <GlassCard className="animate-fade-in-up" style={{ animationDelay: "0.4s" } as React.CSSProperties}>
-                <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4">Model Answer</h3>
-                
-                <div className="p-3 md:p-4 rounded-lg bg-muted/30 border border-border/50">
-                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-                    "In my previous role at TechCorp, we faced a critical deadline when our main server crashed 48 hours before launch..."
-                  </p>
-                </div>
-                
-                <Button variant="link" className="text-primary p-0 mt-2 text-xs md:text-sm">
-                  Read full model answer →
-                </Button>
-              </GlassCard>
-              
               <GlassCard className="p-4 md:p-6 bg-primary/5 border-primary/20 animate-fade-in-up" style={{ animationDelay: "0.5s" } as React.CSSProperties}>
                 <h3 className="text-sm md:text-base font-bold mb-2">Keep Practicing! 🎯</h3>
                 <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">
-                  You have 2 interviews left this month
+                  You have {(user?.free_interviews || 0) + (user?.paid_interviews || 0)} interviews left.
                 </p>
-                <Link to="/interview">
+                <Link to="/dashboard">
                   <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
                     Start Another Interview
                   </Button>
